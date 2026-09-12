@@ -1,7 +1,10 @@
 package com.foodrescue.backend.controller;
 
+import com.foodrescue.backend.dto.LoginRequest;
+import com.foodrescue.backend.dto.LoginResponse;
 import com.foodrescue.backend.dto.RegisterRequest;
 import com.foodrescue.backend.dto.RegisterResponse;
+import com.foodrescue.backend.model.User;
 import com.foodrescue.backend.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -28,4 +31,12 @@ public class AuthController {
                 .status(HttpStatus.CREATED)
                 .body(response);
     }
+    @PostMapping("/login")
+public ResponseEntity<LoginResponse> login(
+        @Valid @RequestBody LoginRequest request) {
+
+    LoginResponse response = userService.loginUser(request);
+
+    return ResponseEntity.ok(response);
+}
 }
