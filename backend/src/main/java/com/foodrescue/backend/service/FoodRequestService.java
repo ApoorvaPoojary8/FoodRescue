@@ -1,5 +1,6 @@
 package com.foodrescue.backend.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.foodrescue.backend.dto.FoodRequestCreateRequest;
@@ -10,8 +11,6 @@ import com.foodrescue.backend.repository.FoodDonationRepository;
 import com.foodrescue.backend.repository.FoodRequestRepository;
 import com.foodrescue.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 
 @Service
 public class FoodRequestService {
@@ -43,6 +42,21 @@ public class FoodRequestService {
                         .orElseThrow(() ->
                                 new RuntimeException("Donation not found"));
 
+        // Prevent duplicate pending requests
+        boolean alreadyRequested =
+                foodRequestRepository
+                        .existsByDonationIdAndRequesterEmailAndStatus(
+                                request.getDonationId(),
+                                userEmail,
+                                "PENDING"
+                        );
+
+        if (alreadyRequested) {
+            throw new RuntimeException(
+                    "You have already requested this donation");
+        }
+
+        // Donation must be available
         if (!donation.getStatus().equals("AVAILABLE")) {
             throw new RuntimeException(
                     "This donation is not available");
@@ -60,42 +74,46 @@ public class FoodRequestService {
 
     public List<FoodRequest> getMyRequests(String userEmail) {
 
-    return foodRequestRepository.findByRequesterEmail(userEmail);
-}
-public List<FoodRequest> getReceivedRequests(String donorEmail) {
-
-    return foodRequestRepository.findByDonationDonorEmail(donorEmail);
-}
-public FoodRequest acceptRequest(
-        Long requestId,
-        String donorEmail) {
-
-    FoodRequest foodRequest = foodRequestRepository.findById(requestId)
-            .orElseThrow(() ->
-                    new RuntimeException("Food request not found"));
-
-    FoodDonation donation = foodRequest.getDonation();
-
-    // Check whether the logged-in user owns the donation
-    if (!donation.getDonor().getEmail().equals(donorEmail)) {
-        throw new RuntimeException(
-                "You are not authorized to accept this request");
+        return foodRequestRepository.findByRequesterEmail(userEmail);
     }
 
-    // Request must still be pending
-    if (!foodRequest.getStatus().equals("PENDING")) {
-        throw new RuntimeException(
-                "This request has already been processed");
+    public List<FoodRequest> getReceivedRequests(String donorEmail) {
+
+        return foodRequestRepository.findByDonationDonorEmail(donorEmail);
     }
 
-    // Accept the request
-    foodRequest.setStatus("ACCEPTED");
+    public FoodRequest acceptRequest(
+            Long requestId,
+            String donorEmail) {
 
-    // Mark the food as claimed
-    donation.setStatus("CLAIMED");
+        FoodRequest foodRequest =
+                foodRequestRepository.findById(requestId)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Food request not found"));
 
-    foodDonationRepository.save(donation);
+        FoodDonation donation = foodRequest.getDonation();
 
-    return foodRequestRepository.save(foodRequest);
-}
+        // Check whether the logged-in user owns the donation
+        if (!donation.getDonor().getEmail().equals(donorEmail)) {
+            throw new RuntimeException(
+                    "You are not authorized to accept this request");
+        }
+
+        // Request must still be pending
+        if (!foodRequest.getStatus().equals("PENDING")) {
+            throw new RuntimeException(
+                    "This request has already been processed");
+        }
+
+        // Accept the request
+        foodRequest.setStatus("ACCEPTED");
+
+        // Mark the food as claimed
+        donation.setStatus("CLAIMED");
+
+        foodDonationRepository.save(donation);
+
+        return foodRequestRepository.save(foodRequest);
+    }
 }
