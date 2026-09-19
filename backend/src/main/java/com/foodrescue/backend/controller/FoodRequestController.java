@@ -77,4 +77,19 @@ public ResponseEntity<FoodRequest> acceptRequest(
 
     return ResponseEntity.ok(acceptedRequest);
 }
+@PutMapping("/{id}/reject")
+public ResponseEntity<FoodRequest> rejectRequest(
+        @PathVariable Long id,
+        Authentication authentication) {
+
+    String donorEmail = authentication.getName();
+
+    FoodRequest rejectedRequest =
+            foodRequestService.rejectRequest(
+                    id,
+                    donorEmail
+            );
+
+    return ResponseEntity.ok(rejectedRequest);
+}
 }

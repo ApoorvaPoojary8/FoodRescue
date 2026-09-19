@@ -31,7 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain)
             throws ServletException, IOException {
 
-        // Temporary debugging message
+        // Check whether JWT filter is called
         System.out.println(
                 "JWT FILTER CALLED: "
                         + request.getMethod()
@@ -41,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
-        // Check whether Authorization header exists
+        // Check Authorization header
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
 
             System.out.println("NO JWT TOKEN FOUND");
@@ -72,7 +72,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     .getContext()
                     .setAuthentication(authentication);
 
-            // Temporary debugging message
+            // Check authentication stored successfully
+            System.out.println(
+                    "AUTH CHECK: "
+                            + SecurityContextHolder
+                            .getContext()
+                            .getAuthentication()
+            );
+
             System.out.println(
                     "JWT AUTHENTICATED: "
                             + email

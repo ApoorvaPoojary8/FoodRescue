@@ -116,4 +116,35 @@ public class FoodRequestService {
 
         return foodRequestRepository.save(foodRequest);
     }
+    public FoodRequest rejectRequest(
+        Long requestId,
+        String donorEmail) {
+
+    FoodRequest foodRequest =
+            foodRequestRepository.findById(requestId)
+                    .orElseThrow(() ->
+                            new RuntimeException(
+                                    "Food request not found"));
+
+    FoodDonation donation = foodRequest.getDonation();
+
+    // Check whether the logged-in user owns the donation
+    if (!donation.getDonor().getEmail().equals(donorEmail)) {
+        throw new RuntimeException(
+                "You are not authorized to reject this request");
+    }
+
+    // Request must still be pending
+    if (!foodRequest.getStatus().equals("PENDING")) {
+        throw new RuntimeException(
+                "This request has already been processed");
+    }
+
+    // Reject the request
+    foodRequest.setStatus("REJECTED");
+
+    // Donation remains AVAILABLE
+    return foodRequestRepository.save(foodRequest);
+}
+
 }
