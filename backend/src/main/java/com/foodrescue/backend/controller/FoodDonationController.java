@@ -72,4 +72,15 @@ public ResponseEntity<FoodDonation> updateDonation(
 
     return ResponseEntity.ok(updatedDonation);
 }
+@DeleteMapping("/{id}")
+public ResponseEntity<String> deleteDonation(
+        @PathVariable Long id,
+        Authentication authentication) {
+
+    String userEmail = authentication.getName();
+
+    foodDonationService.deleteDonation(id, userEmail);
+
+    return ResponseEntity.ok("Donation deleted successfully");
+}
 }

@@ -77,4 +77,18 @@ public FoodDonation updateDonation(
 
     return foodDonationRepository.save(donation);
 }
+public void deleteDonation(Long donationId, String userEmail) {
+
+    FoodDonation donation = foodDonationRepository.findById(donationId)
+            .orElseThrow(() ->
+                    new RuntimeException("Donation not found"));
+
+    // Check whether this donation belongs to the logged-in user
+    if (!donation.getDonor().getEmail().equals(userEmail)) {
+        throw new RuntimeException(
+                "You are not authorized to delete this donation");
+    }
+
+    foodDonationRepository.delete(donation);
+}
 }
