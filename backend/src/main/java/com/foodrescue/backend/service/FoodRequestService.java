@@ -1,5 +1,7 @@
 package com.foodrescue.backend.service;
 
+import java.util.List;
+
 import com.foodrescue.backend.dto.FoodRequestCreateRequest;
 import com.foodrescue.backend.model.FoodDonation;
 import com.foodrescue.backend.model.FoodRequest;
@@ -55,4 +57,9 @@ public class FoodRequestService {
 
         return foodRequestRepository.save(foodRequest);
     }
+
+    public List<FoodRequest> getMyRequests(String userEmail) {
+
+    return foodRequestRepository.findByRequesterEmail(userEmail);
+}
 }
