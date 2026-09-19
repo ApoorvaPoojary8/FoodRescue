@@ -1,5 +1,7 @@
 package com.foodrescue.backend.controller;
 
+import com.foodrescue.backend.dto.FoodDonationUpdateRequest;
+
 import com.foodrescue.backend.dto.FoodDonationRequest;
 import com.foodrescue.backend.model.FoodDonation;
 import com.foodrescue.backend.service.FoodDonationService;
@@ -43,4 +45,31 @@ public class FoodDonationController {
                 foodDonationService.getAllDonations()
         );
     }
+    @GetMapping("/my")
+public ResponseEntity<List<FoodDonation>> getMyDonations(
+        Authentication authentication) {
+
+    String userEmail = authentication.getName();
+
+    return ResponseEntity.ok(
+            foodDonationService.getMyDonations(userEmail)
+    );
+}
+@PutMapping("/{id}")
+public ResponseEntity<FoodDonation> updateDonation(
+        @PathVariable Long id,
+        @Valid @RequestBody FoodDonationUpdateRequest request,
+        Authentication authentication) {
+
+    String userEmail = authentication.getName();
+
+    FoodDonation updatedDonation =
+            foodDonationService.updateDonation(
+                    id,
+                    request,
+                    userEmail
+            );
+
+    return ResponseEntity.ok(updatedDonation);
+}
 }

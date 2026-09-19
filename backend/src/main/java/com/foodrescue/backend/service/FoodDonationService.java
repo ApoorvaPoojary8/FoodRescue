@@ -1,6 +1,6 @@
 package com.foodrescue.backend.service;
-
 import com.foodrescue.backend.dto.FoodDonationRequest;
+import com.foodrescue.backend.dto.FoodDonationUpdateRequest;
 import com.foodrescue.backend.model.FoodDonation;
 import com.foodrescue.backend.model.User;
 import com.foodrescue.backend.repository.FoodDonationRepository;
@@ -50,4 +50,31 @@ public class FoodDonationService {
     public List<FoodDonation> getAllDonations() {
         return foodDonationRepository.findAll();
     }
+    public List<FoodDonation> getMyDonations(String userEmail) {
+
+    return foodDonationRepository.findByDonorEmail(userEmail);
+}
+public FoodDonation updateDonation(
+        Long donationId,
+        FoodDonationUpdateRequest request,
+        String userEmail) {
+
+    FoodDonation donation = foodDonationRepository.findById(donationId)
+            .orElseThrow(() ->
+                    new RuntimeException("Donation not found"));
+
+    // Check whether this donation belongs to the logged-in user
+    if (!donation.getDonor().getEmail().equals(userEmail)) {
+        throw new RuntimeException(
+                "You are not authorized to update this donation");
+    }
+
+    donation.setFoodName(request.getFoodName());
+    donation.setQuantity(request.getQuantity());
+    donation.setDescription(request.getDescription());
+    donation.setLocation(request.getLocation());
+    donation.setExpiryTime(request.getExpiryTime());
+
+    return foodDonationRepository.save(donation);
+}
 }
