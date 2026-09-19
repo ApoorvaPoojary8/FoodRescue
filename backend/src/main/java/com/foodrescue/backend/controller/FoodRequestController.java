@@ -52,4 +52,29 @@ public ResponseEntity<List<FoodRequest>> getMyRequests(
             foodRequestService.getMyRequests(userEmail)
     );
 }
+@GetMapping("/received")
+public ResponseEntity<List<FoodRequest>> getReceivedRequests(
+        Authentication authentication) {
+
+    String donorEmail = authentication.getName();
+
+    return ResponseEntity.ok(
+            foodRequestService.getReceivedRequests(donorEmail)
+    );
+}
+@PutMapping("/{id}/accept")
+public ResponseEntity<FoodRequest> acceptRequest(
+        @PathVariable Long id,
+        Authentication authentication) {
+
+    String donorEmail = authentication.getName();
+
+    FoodRequest acceptedRequest =
+            foodRequestService.acceptRequest(
+                    id,
+                    donorEmail
+            );
+
+    return ResponseEntity.ok(acceptedRequest);
+}
 }

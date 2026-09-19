@@ -8,4 +8,6 @@ import java.util.List;
 public interface FoodRequestRepository extends JpaRepository<FoodRequest, Long> {
 
     List<FoodRequest> findByRequesterEmail(String email);
+    List<FoodRequest> findByDonationDonorEmail(String email);
+    
 }
